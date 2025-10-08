@@ -55,3 +55,4 @@ nunit-*.xml
 
 # User added
 appsettings.Development.json
+appsettings.Production.json

@@ -7,6 +7,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D9D956DC-9E6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesFinder.Orchestrator.API", "src\GamesFinder.Orchestrator.API\GamesFinder.Orchestrator.API.csproj", "{0CE93C79-CFE8-41A5-9916-CF48C28CD1D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesFinder.Orchestrator.Domain", "src\GamesFinder.Orchestrator.Domain\GamesFinder.Orchestrator.Domain.csproj", "{E64DBB13-48A8-4F67-BF7F-48100D9548FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesFinder.Orchestrator.Repositories", "src\GamesFinder.Orchestrator.Repositories\GamesFinder.Orchestrator.Repositories.csproj", "{97BAD901-9936-42CC-AD45-A2DE18BF7C82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesFinder.Orchestrator.Services", "src\GamesFinder.Orchestrator.Services\GamesFinder.Orchestrator.Services.csproj", "{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesFinder.Orchestrator.Utils", "src\GamesFinder.Orchestrator.Utils\GamesFinder.Orchestrator.Utils.csproj", "{A8A537F6-3307-4D28-B452-4424F2FEC0A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +28,28 @@ Global
 		{0CE93C79-CFE8-41A5-9916-CF48C28CD1D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CE93C79-CFE8-41A5-9916-CF48C28CD1D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CE93C79-CFE8-41A5-9916-CF48C28CD1D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E64DBB13-48A8-4F67-BF7F-48100D9548FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E64DBB13-48A8-4F67-BF7F-48100D9548FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E64DBB13-48A8-4F67-BF7F-48100D9548FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E64DBB13-48A8-4F67-BF7F-48100D9548FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97BAD901-9936-42CC-AD45-A2DE18BF7C82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97BAD901-9936-42CC-AD45-A2DE18BF7C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97BAD901-9936-42CC-AD45-A2DE18BF7C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97BAD901-9936-42CC-AD45-A2DE18BF7C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8A537F6-3307-4D28-B452-4424F2FEC0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8A537F6-3307-4D28-B452-4424F2FEC0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8A537F6-3307-4D28-B452-4424F2FEC0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8A537F6-3307-4D28-B452-4424F2FEC0A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0CE93C79-CFE8-41A5-9916-CF48C28CD1D1} = {D9D956DC-9E6E-4428-858D-8C4D9759CA86}
+		{E64DBB13-48A8-4F67-BF7F-48100D9548FF} = {D9D956DC-9E6E-4428-858D-8C4D9759CA86}
+		{97BAD901-9936-42CC-AD45-A2DE18BF7C82} = {D9D956DC-9E6E-4428-858D-8C4D9759CA86}
+		{90CEB68E-B1FE-4E80-934A-B3D09E8EE7E6} = {D9D956DC-9E6E-4428-858D-8C4D9759CA86}
+		{A8A537F6-3307-4D28-B452-4424F2FEC0A8} = {D9D956DC-9E6E-4428-858D-8C4D9759CA86}
 	EndGlobalSection
 EndGlobal
