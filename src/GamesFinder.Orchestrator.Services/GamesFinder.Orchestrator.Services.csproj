@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GamesFinder.Orchestrator.Domain\GamesFinder.Orchestrator.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

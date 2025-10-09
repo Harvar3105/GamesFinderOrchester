@@ -1,0 +1,19 @@
+root = true
+
+[*.cs]
+
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+
+dotnet_naming_rule.private_readonly_fields_should_have_underscore.symbols = private_readonly_fields
+dotnet_naming_rule.private_readonly_fields_should_have_underscore.style = underscore_prefix
+dotnet_naming_rule.private_readonly_fields_should_have_underscore.severity = warning
+
+dotnet_naming_symbols.private_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.private_readonly_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_readonly_fields.required_modifiers = readonly
+
+dotnet_naming_style.underscore_prefix.required_prefix = _
+dotnet_naming_style.underscore_prefix.capitalization = camel_case
