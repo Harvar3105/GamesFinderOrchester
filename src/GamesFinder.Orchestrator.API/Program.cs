@@ -10,6 +10,16 @@ using MongoDB.Driver;
 using GamesFinder.Orchestrator.Repositories;
 using GamesFinder.Orchestrator.Domain.Enums;
 using GamesFinder.Orchestrator.Domain.Classes;
+using GamesFinder.Domain.Interfaces.Repositories;
+using GamesFinder.Orchestrator.Repositories.Repositories;
+using GamesFinder.DAL.Repositories;
+using GamesFinder.Orchestrator.Domain.Interfaces.Services;
+using GamesFinder.Orchestrator.Services;
+using GamesFinder.Orchestrator.Domain.Classes.Entities;
+using GamesFinder.Orchestrator.Publisher.RabbitMQ;
+using GamesFinder.Orchestrator.Domain.Interfaces.Infrastructure;
+using GamesFinder.Orchestrator.Publisher.Redis;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,9 +70,38 @@ builder.Services.AddAuthorization();
 
 
 builder.Services.AddSingleton(new SteamOptions(
-    domainName: builder.Configuration.GetValue<string>("SteamApi:Name")!,
-    apiKey: builder.Configuration.GetValue<string>("SteamApi:Key")!
+	domainName: builder.Configuration.GetValue<string>("SteamApi:Name")!,
+	apiKey: builder.Configuration.GetValue<string>("SteamApi:Key")!
 ));
+builder.Services.AddSingleton(new RabbitMqConfig(
+	hostName: builder.Configuration.GetValue<string>("RabbitMQ:HostName")!,
+	port: builder.Configuration.GetValue<int>("RabbitMQ:Port"),
+	defaultQueue: builder.Configuration.GetValue<string>("RabbitMQ:DefaultQueue")!,
+	userName: builder.Configuration.GetValue<string>("RabbitMQ:UserName")!,
+	password: builder.Configuration.GetValue<string>("RabbitMQ:Password")!
+));
+builder.Services.AddSingleton(new RedisConfig(
+	host: builder.Configuration.GetValue<string>("Redis:Host")!,
+	port: builder.Configuration.GetValue<int>("Redis:Port"),
+	password: builder.Configuration.GetValue<string>("Redis:Password"),
+	database: builder.Configuration.GetValue<int>("Redis:Database")
+));
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+	var config = sp.GetRequiredService<IOptions<RedisConfig>>().Value;
+	var configurationOptions = new ConfigurationOptions
+	{
+		EndPoints = { $"{config.Host}:{config.Port}" },
+		Password = config.Password,
+		DefaultDatabase = config.Database
+	};
+	return ConnectionMultiplexer.Connect(configurationOptions);
+});
+
+builder.Services.AddSingleton<IGameRepository<Game>, GameRepository>();
+builder.Services.AddSingleton<IGameOfferRepository<GameOffer>, GameOfferRepository>();
+builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
+builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
 
 
 BsonSerializer.RegisterSerializer(typeof(ECurrency), new EnumSerializer<ECurrency>(BsonType.String));
