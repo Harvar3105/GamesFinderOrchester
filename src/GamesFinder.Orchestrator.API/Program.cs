@@ -20,6 +20,7 @@ using GamesFinder.Orchestrator.Publisher.RabbitMQ;
 using GamesFinder.Orchestrator.Domain.Interfaces.Infrastructure;
 using GamesFinder.Orchestrator.Publisher.Redis;
 using StackExchange.Redis;
+using GamesFinder.Orchestrator.Publisher;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,6 +103,7 @@ builder.Services.AddSingleton<IGameRepository<Game>, GameRepository>();
 builder.Services.AddSingleton<IGameOfferRepository<GameOffer>, GameOfferRepository>();
 builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
+builder.Services.AddSingleton<SteamScrapingPublisher>();
 
 
 BsonSerializer.RegisterSerializer(typeof(ECurrency), new EnumSerializer<ECurrency>(BsonType.String));

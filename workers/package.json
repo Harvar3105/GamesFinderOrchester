@@ -1,0 +1,25 @@
+{
+  "name": "gamesfinder-workers",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "steam": "ts-node steamWorker.ts"
+  },
+  "dependencies": {
+    "@types/amqplib": "^0.10.7",
+    "@types/node": "^24.7.2",
+    "@types/node-fetch": "^2.6.13",
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.3",
+    "ioredis": "^5.8.1",
+    "node-fetch": "^3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "uuid": "^13.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

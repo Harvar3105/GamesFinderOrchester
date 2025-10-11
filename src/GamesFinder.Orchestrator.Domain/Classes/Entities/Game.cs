@@ -31,7 +31,7 @@ public class Game(
   [BsonIgnore]
 	public List<GameOffer> Offers = initialOffers ?? new List<GameOffer>();
 	[BsonElement("price_range")]
-	public PriceRange price {get; set;}
+	public PriceRange Price {get; set;}
 
   public class PriceRange
 	{
