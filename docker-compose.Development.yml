@@ -1,0 +1,75 @@
+version: "3.9"
+
+networks:
+  shared-network:
+    external: true
+
+services:
+  # -----------------------------
+  # RabbitMQ
+  # -----------------------------
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: gamesfinder-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Redis
+  # -----------------------------
+  redis:
+    image: "redis:7-alpine"
+    container_name: gamesfinder-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Workers
+  # -----------------------------
+  steam-worker:
+    build:
+      context: ./workers
+      dockerfile: Dockerfile
+    container_name: steam-worker
+    env_file:
+      - ./workers/.env
+    volumes:
+      - ./workers:/app:cached
+    working_dir: /app
+    command: ["npm", "run", "steam"]
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Backend / API
+  # -----------------------------
+  gamesfinder-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gamesfinder-api
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+    volumes:
+      - ./src/GamesFinder.Orchestrator.API:/app/src/GamesFinder.Orchestrator.API:cached
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - shared-network

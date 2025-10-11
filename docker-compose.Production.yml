@@ -1,0 +1,93 @@
+version: "3.9"
+
+networks:
+  shared-network:
+    external: true
+
+secrets:
+  rabbitmq_username:
+    external: true
+  rabbitmq_password:
+    external: true
+  redis_password:
+    external: true
+
+services:
+  # -----------------------------
+  # RabbitMQ
+  # -----------------------------
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: gamesfinder-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: /run/secrets/rabbitmq_username
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_password
+    secrets:
+      - rabbitmq_password
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Redis
+  # -----------------------------
+  redis:
+    image: "redis:7-alpine"
+    container_name: gamesfinder-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "$(cat /run/secrets/redis_password)"]
+    secrets:
+      - redis_password
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Workers
+  # -----------------------------
+  steam-worker:
+    build:
+      context: ./workers
+      dockerfile: Dockerfile
+    container_name: steam-worker
+    environment:
+      - RABBITMQ_USER=/run/secrets/rabbitmq_username
+      - RABBITMQ_PASS_FILE=/run/secrets/rabbitmq_password
+      - REDIS_PASS_FILE=/run/secrets/redis_password
+    secrets:
+      - rabbitmq_password
+      - redis_password
+    working_dir: /app
+    command: ["npm", "run", "steam"]
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - shared-network
+
+  # -----------------------------
+  # Backend / API
+  # -----------------------------
+  gamesfinder-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gamesfinder-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - RABBITMQ_PASS_FILE=/run/secrets/rabbitmq_password
+      - REDIS_PASS_FILE=/run/secrets/redis_password
+    secrets:
+      - rabbitmq_password
+      - redis_password
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - shared-network
