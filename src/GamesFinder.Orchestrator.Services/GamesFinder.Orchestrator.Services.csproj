@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GamesFinder.Orchestrator.Domain\GamesFinder.Orchestrator.Domain.csproj" />
+    <ProjectReference Include="..\GamesFinder.Orchestrator.Publisher\GamesFinder.Orchestrator.Publisher.csproj" />
   </ItemGroup>
 
 </Project>

@@ -29,24 +29,10 @@ public class Game(
   [BsonElement("header_image")]
   public string? HeaderImage { get; set; } = headerImage;
   [BsonIgnore]
-	public List<GameOffer> Offers = initialOffers ?? new List<GameOffer>();
-	[BsonElement("price_range")]
-	public PriceRange Price {get; set;}
+  public List<GameOffer> Offers = initialOffers ?? new List<GameOffer>();
+  [BsonElement("is_released")]
+  public bool IsReleased { get; set; }
+  [BsonElement("initial_prices")]
+  public Dictionary<ECurrency, decimal> InitialPrices = new();
 
-  public class PriceRange
-	{
-		[BsonElement("initial")]
-		public decimal? Initial { get; set; }
-		[BsonElement("current")]
-		public decimal? Current { get; set; }
-
-		public ECurrency? Currency { get; set; }
-
-		public PriceRange(decimal? initial, decimal? current, ECurrency? currency)
-		{
-			Initial = initial;
-			Current = current;
-			Currency = currency;
-		}
-	}
 }

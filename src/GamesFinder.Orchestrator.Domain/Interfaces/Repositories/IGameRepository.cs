@@ -10,4 +10,5 @@ public interface IGameRepository<TEntity> : IRepository<TEntity> where TEntity :
 	Task<List<(int, bool)>> ExistBySteamIdMany(List<int> steamIds);
 	Task<bool> ExistsBySteamIdAsync(int steamId);
 	Task<bool> ExistsByAppNameAsync(string appName);
+	Task<IEnumerable<int>> GetAllSteamIdsAsync();
 }

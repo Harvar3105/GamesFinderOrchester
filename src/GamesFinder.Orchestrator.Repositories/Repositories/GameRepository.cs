@@ -87,4 +87,12 @@ public class GameRepository : Repository<Game>, IGameRepository<Game>
     var filter = Builders<Game>.Filter.Eq(g => g.SteamID, steamId);
     return await _collection.Find(filter).AnyAsync();
   }
+
+  public async Task<IEnumerable<int>> GetAllSteamIdsAsync()
+  {
+    return await _collection
+      .Find(_ => true)
+      .Project(g => g.SteamID)
+      .ToListAsync();
+  }
 }

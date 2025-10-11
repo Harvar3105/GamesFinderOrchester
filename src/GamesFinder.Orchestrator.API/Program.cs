@@ -21,6 +21,7 @@ using GamesFinder.Orchestrator.Domain.Interfaces.Infrastructure;
 using GamesFinder.Orchestrator.Publisher.Redis;
 using StackExchange.Redis;
 using GamesFinder.Orchestrator.Publisher;
+using GamesFinder.Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,10 +65,18 @@ var twp = new TokenValidationParameters
 	ClockSkew = TimeSpan.FromMinutes(1)
 };
 
+var requireJwt = builder.Configuration.GetValue<bool>("Security:RequireJWT");
+
 // Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options => {options.TokenValidationParameters = twp;});
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+	if (!requireJwt)
+	{
+		options.AddPolicy("DevPolicy", policy => policy.RequireAssertion(_ => true));
+	}
+});
 
 
 builder.Services.AddSingleton(new SteamOptions(
@@ -101,12 +110,14 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 builder.Services.AddSingleton<IGameRepository<Game>, GameRepository>();
 builder.Services.AddSingleton<IGameOfferRepository<GameOffer>, GameOfferRepository>();
-builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
+// builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
+builder.Services.AddSingleton<ISteamService, SteamService>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
 builder.Services.AddSingleton<SteamScrapingPublisher>();
 
 
 BsonSerializer.RegisterSerializer(typeof(ECurrency), new EnumSerializer<ECurrency>(BsonType.String));
+BsonSerializer.RegisterSerializer(typeof(EVendor), new EnumSerializer<EVendor>(BsonType.String));
 
 builder.WebHost.ConfigureKestrel(options =>
 {

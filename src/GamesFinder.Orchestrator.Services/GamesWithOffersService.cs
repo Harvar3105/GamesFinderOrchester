@@ -6,8 +6,8 @@ namespace GamesFinder.Orchestrator.Services;
 
 public class GamesWithOffersService(IGameRepository<Game> gameRepository, IGameOfferRepository<GameOffer> gameOfferRepository) : IGamesWithOffersService<Game>
 {
-  private readonly IGameRepository<Game> _gameRepository = gameRepository;
-  private readonly IGameOfferRepository<GameOffer> _gameOfferRepository = gameOfferRepository;
+  protected readonly IGameRepository<Game> _gameRepository = gameRepository;
+  protected readonly IGameOfferRepository<GameOffer> _gameOfferRepository = gameOfferRepository;
   public async Task<long> CountAsync()
   {
     return await _gameRepository.CountAsync();

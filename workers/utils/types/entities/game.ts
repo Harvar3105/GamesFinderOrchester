@@ -1,5 +1,6 @@
+import { ECurrency } from "../enums/eCurrency";
 import { Entity } from "./entity";
-import { PriceRange } from "./priceRange";
+import { GameOffer } from "./gameOffer";
 
 export interface Game extends Entity {
   name: string;
@@ -9,6 +10,7 @@ export interface Game extends Entity {
   isDLC: boolean;
   description: string | null;
   headerImage: string | null;
-  // Offers not implemented here. No reason.
-  price: PriceRange;
+  offers: GameOffer[];
+  isReleased: boolean;
+  initialPrices: Record<ECurrency, number>;
 }

@@ -14,7 +14,7 @@ public class SteamScrapingPublisher
     _logger = logger;
   }
 
-  public async Task PublishSteamScrapeTaskAsync(List<string> steamIds)
+  public async Task PublishSteamScrapeTaskAsync(List<int> steamIds, bool updateExisting = false)
   {
     if (steamIds == null || steamIds.Count == 0)
     {
@@ -27,6 +27,7 @@ public class SteamScrapingPublisher
     var task = new SteamScrapeTask
     {
       GameIds = steamIds,
+      UpdateExisting = updateExisting,
       RedisResultKey = redisKey
     };
 
@@ -49,7 +50,8 @@ public class SteamScrapingPublisher
   private class SteamScrapeTask
   { 
     public Guid TaskId { get; set; } = Guid.NewGuid();
-    public List<string> GameIds { get; set; } = new();
+    public List<int> GameIds { get; set; } = new();
+    public bool UpdateExisting { get; set; } = false;
     public string RedisResultKey { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
   }

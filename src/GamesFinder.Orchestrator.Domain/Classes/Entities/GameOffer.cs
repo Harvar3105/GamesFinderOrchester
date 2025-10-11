@@ -1,4 +1,5 @@
 ﻿using GamesFinder.Domain.Enums;
+using GamesFinder.Orchestrator.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -12,7 +13,6 @@ public class GameOffer : Entity
     public Guid GameId { get; set; }
     [BsonElement("vendors_game_id")]
     public string VendorsGameId { get; set; }
-    [BsonRepresentation(BsonType.String)]
     [BsonElement("vendor")]
     public EVendor Vendor { get; set; }
     [BsonElement("vendors_url")]
@@ -20,17 +20,16 @@ public class GameOffer : Entity
     [BsonElement("available")]
     public bool Available { get; set; }
     [BsonElement("price")]
-    [BsonDictionaryOptions(DictionaryRepresentation.Document)]
-    public List<PriceRange> Prices { get; set; }
+    public Dictionary<ECurrency, decimal> Price { get; set; } = new();
 
-    public GameOffer(Guid gameId, EVendor vendor, string vendorsGameId, string vendorsUrl, List<PriceRange> prices, bool available = false)
+    public GameOffer(Guid gameId, EVendor vendor, string vendorsGameId, string vendorsUrl, Dictionary<ECurrency, decimal> price, bool available = false)
     {
         GameId = gameId;
         Vendor = vendor;
         VendorsGameId = vendorsGameId;
         VendorsUrl = vendorsUrl;
         Available = available;
-        Prices = prices;
+        Price = price;
     }
     
     //TODO: Configure Equals for object comparing
