@@ -1,17 +1,16 @@
-import amqp from 'amqplib';
+import { rabbitConn } from '../utils/config.js';
 import { config, redis } from '../utils/config.js';
 import { SteamTask } from '../utils/types/entities/tasks.js';
 import { scrapeBatch } from '../utils/fetchAPI.js';
 import { Game } from '../utils/types/entities/game.js';
 
 async function startSteamWorker() {
-  const connection = await amqp.connect(config.rabbitUrl);
-  const channel = await connection.createChannel();
+  const channel = await rabbitConn.createChannel();
 
-  await channel.assertQueue(config.steamQueue, { durable: true });
-  console.log(`Steam worker listening on queue "${config.steamQueue}"...`);
+  await channel.assertQueue(config.defaultQueue, { durable: true });
+  console.log(`Steam worker listening on queue "${config.defaultQueue}"...`);
 
-  channel.consume(config.steamQueue, async (msg) => {
+  channel.consume(config.defaultQueue, async (msg) => {
     if (!msg) return;
 
     const task: SteamTask = JSON.parse(msg.content.toString());
@@ -39,13 +38,13 @@ async function startSteamWorker() {
         await new Promise(res => setTimeout(res, config.cooldownMs));
       }
 
-      channel.sendToQueue(
-        config.steamResultsQueue,
-        Buffer.from(JSON.stringify({
-          jobId: task.jobId,
-          redisResultKey: task.redisResultKey,
-        }))
-      );
+      // channel.sendToQueue(
+      //   config.steamResultsQueue,
+      //   Buffer.from(JSON.stringify({
+      //     jobId: task.jobId,
+      //     redisResultKey: task.redisResultKey,
+      //   }))
+      // );
 
       channel.ack(msg);
       console.log(`Task ${task.jobId} done, scraped ${scrapedCount} games.`);
