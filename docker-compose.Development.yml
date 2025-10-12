@@ -36,9 +36,7 @@ services:
   # Workers
   # -----------------------------
   steam-worker:
-    build:
-      context: ./workers
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: steam-worker
     env_file:
       - ./workers/.env

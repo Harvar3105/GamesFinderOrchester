@@ -43,7 +43,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 	return new MongoClient(settings.ConnectionString);
 });
 
-builder.Services.AddScoped(sp =>
+builder.Services.AddScoped<IMongoDatabase>(sp =>
 {
 	var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
 	var client = sp.GetRequiredService<IMongoClient>();
@@ -108,10 +108,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 	return ConnectionMultiplexer.Connect(configurationOptions);
 });
 
-builder.Services.AddSingleton<IGameRepository<Game>, GameRepository>();
+builder.Services.AddScoped<IGameRepository<Game>, GameRepository>();
 builder.Services.AddSingleton<IGameOfferRepository<GameOffer>, GameOfferRepository>();
 // builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
-builder.Services.AddSingleton<ISteamService, SteamService>();
+builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
 builder.Services.AddSingleton<SteamScrapingPublisher>();
 

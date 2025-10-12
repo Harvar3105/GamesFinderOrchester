@@ -1,5 +1,5 @@
 import amqp from 'amqplib';
-import { scrapeBatch } from '../utils/types/fetch/fetchAPI';
+import { scrapeBatch } from '../utils/fetchAPI';
 import { config, redis } from '../utils/config';
 import { SteamTask } from '../utils/types/entities/tasks';
 import { Game } from '../utils/types/entities/game';

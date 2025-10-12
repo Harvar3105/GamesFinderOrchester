@@ -7,25 +7,31 @@ namespace GamesFinder.Orchestrator.Publisher.RabbitMQ;
 
 public class RabbitMqPublisher : IBrockerPublisher
 {
+  private readonly Lazy<Task<IConnection>> _lazyConnection;
   private readonly RabbitMqConfig _config;
 
   public RabbitMqPublisher(RabbitMqConfig config)
   {
     _config = config;
+
+    _lazyConnection = new Lazy<Task<IConnection>>(async () =>
+      {
+        var factory = new ConnectionFactory
+        {
+          HostName = _config.HostName,
+          Port = _config.Port,
+          UserName = _config.UserName,
+          Password = _config.Password
+        };
+
+        return await factory.CreateConnectionAsync();
+      });
   }
 
   public async Task PublishAsync<T>(T message, string? queueName = null)
   {
-    var factory = new ConnectionFactory
-    {
-      HostName = _config.HostName,
-      Port = _config.Port,
-      UserName = _config.UserName,
-      Password = _config.Password
-    };
-
-    using var connection = await factory.CreateConnectionAsync();
-    using var channel = await connection.CreateChannelAsync();
+    var connection = await _lazyConnection.Value;
+    var channel = await connection.CreateChannelAsync();
 
     var targetQueue = queueName ?? _config.DefaultQueue;
 
@@ -41,9 +47,9 @@ public class RabbitMqPublisher : IBrockerPublisher
     var body = Encoding.UTF8.GetBytes(json);
 
     var props = new BasicProperties
-      {
-        DeliveryMode = DeliveryModes.Persistent
-      };
+    {
+      DeliveryMode = DeliveryModes.Persistent
+    };
 
     await channel.BasicPublishAsync(
       exchange: "",
@@ -55,4 +61,13 @@ public class RabbitMqPublisher : IBrockerPublisher
 
     Console.WriteLine($"[RabbitMQ] Published to '{targetQueue}': {json}");
   }
+  
+  public async ValueTask DisposeAsync()
+    {
+      if (_lazyConnection.IsValueCreated)
+      {
+        var connection = await _lazyConnection.Value;
+        await connection.DisposeAsync();
+      }
+    }
 }
