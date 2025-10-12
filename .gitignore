@@ -58,3 +58,4 @@ appsettings.Development.json
 appsettings.Production.json
 .env
 node_modules/
+dist/
