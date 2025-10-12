@@ -109,7 +109,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 });
 
 builder.Services.AddScoped<IGameRepository<Game>, GameRepository>();
-builder.Services.AddSingleton<IGameOfferRepository<GameOffer>, GameOfferRepository>();
+builder.Services.AddScoped<IGameOfferRepository<GameOffer>, GameOfferRepository>();
 // builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
 builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
