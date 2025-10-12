@@ -43,7 +43,7 @@ services:
     volumes:
       - ./workers:/app:cached
     working_dir: /app
-    command: ["npm", "run", "steam"]
+    command: sh -c "npm ci && npm run build && npm run steam"
     depends_on:
       - rabbitmq
       - redis
