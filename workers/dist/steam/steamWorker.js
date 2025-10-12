@@ -1,5 +1,5 @@
 import amqp from 'amqplib';
-import { scrapeBatch } from '../utils/types/fetch/fetchAPI';
+import { scrapeBatch } from '../utils/fetchAPI';
 import { config, redis } from '../utils/config';
 async function startSteamWorker() {
     const connection = await amqp.connect(config.rabbitUrl);
