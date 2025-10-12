@@ -1,7 +1,19 @@
 import amqp from 'amqplib';
 import { Redis } from 'ioredis';
-import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+if (process.env.NODE_ENV !== 'docker') {
+  import('dotenv').then(dotenv => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    
+    dotenv.config({
+      path: path.resolve(__dirname, '../.env')
+    })
+  });
+}
+
 
 export const config = {
   rabbitUrl: process.env.RABBIT_URL || 'amqp://localhost',
