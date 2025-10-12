@@ -1,6 +1,6 @@
-import { eCurrency } from "../enums/eCurrency";
-import { Entity } from "./entity";
-import { GameOffer } from "./gameOffer";
+import { eCurrency } from "../enums/eCurrency.js";
+import { Entity } from "./entity.js";
+import { GameOffer } from "./gameOffer.js";
 
 export interface Game extends Entity {
   name: string;

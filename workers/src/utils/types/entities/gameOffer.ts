@@ -1,6 +1,7 @@
-import { eCurrency } from "../enums/eCurrency";
-import { eVendor } from "../enums/eVendor";
-import { Entity } from "./entity";
+import { eCurrency } from "../enums/eCurrency.js";
+import { eVendor } from "../enums/eVendor.js";
+import { Entity } from "./entity.js";
+
 
 export interface GameOffer extends Entity {
   gameId: string;

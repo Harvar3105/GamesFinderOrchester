@@ -1,11 +1,9 @@
-import fetch from 'node-fetch';
-import { Game } from './types/entities/game';
-import { v4 } from 'uuid';
-import { get } from 'http';
-import { eCurrency, getECurrencyFromString } from './types/enums/eCurrency';
-import { GameOffer } from './types/entities/gameOffer';
-import { eVendor } from './types/enums/eVendor';
-import { eRegion } from './types/enums/eRegion';
+import { v4 } from "uuid";
+import { Game } from "./types/entities/game.js";
+import { eCurrency, getECurrencyFromString } from "./types/enums/eCurrency.js";
+import { eRegion } from "./types/enums/eRegion.js";
+import { eVendor } from "./types/enums/eVendor.js";
+import { GameOffer } from "./types/entities/gameOffer.js";
 
 export async function fetchSteamGame(id: number, region: eRegion = eRegion.US ): Promise<Game | null> {
   const url = `https://store.steampowered.com/api/appdetails?appids=${id}&cc=${region}&l=en`;
