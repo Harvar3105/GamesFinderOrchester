@@ -84,8 +84,7 @@ services:
       - rabbitmq_password
       - redis_password
     ports:
-      - "5000:5000"
-      - "5001:5001"
+      - "8081:8080"
     depends_on:
       - rabbitmq
       - redis

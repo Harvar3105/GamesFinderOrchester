@@ -7,8 +7,8 @@ namespace GamesFinder.Orchestrator.Services;
 
 public class SteamService : GamesWithOffersService, ISteamService
 {
-  private readonly SteamScrapingPublisher _steamScrapingPublisher;
-  public SteamService(IGameRepository<Game> gameRepository, IGameOfferRepository<GameOffer> gameOfferRepository, SteamScrapingPublisher steamScrapingPublisher)
+  private readonly SteamWorkerPublisher _steamScrapingPublisher;
+  public SteamService(IGameRepository<Game> gameRepository, IGameOfferRepository<GameOffer> gameOfferRepository, SteamWorkerPublisher steamScrapingPublisher)
     : base(gameRepository, gameOfferRepository)
   {
     _steamScrapingPublisher = steamScrapingPublisher;

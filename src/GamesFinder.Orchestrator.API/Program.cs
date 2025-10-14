@@ -87,6 +87,8 @@ builder.Services.AddSingleton(new RabbitMqConfig(
 	hostName: builder.Configuration.GetValue<string>("RabbitMQ:HostName")!,
 	port: builder.Configuration.GetValue<int>("RabbitMQ:Port"),
 	defaultQueue: builder.Configuration.GetValue<string>("RabbitMQ:DefaultQueue")!,
+	steamRequestsQueue: builder.Configuration.GetValue<string>("RabbitMQ:SteamRequestsQueue")!,
+	steamResultsQueue: builder.Configuration.GetValue<string>("RabbitMQ:SteamResultsQueue")!,
 	userName: builder.Configuration.GetValue<string>("RabbitMQ:UserName")!,
 	password: builder.Configuration.GetValue<string>("RabbitMQ:Password")!
 ));
@@ -113,7 +115,7 @@ builder.Services.AddScoped<IGameOfferRepository<GameOffer>, GameOfferRepository>
 // builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
 builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
-builder.Services.AddSingleton<SteamScrapingPublisher>();
+builder.Services.AddSingleton<SteamWorkerPublisher>();
 
 
 BsonSerializer.RegisterSerializer(typeof(ECurrency), new EnumSerializer<ECurrency>(BsonType.String));

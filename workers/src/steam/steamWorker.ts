@@ -7,10 +7,13 @@ import { Game } from '../utils/types/entities/game.js';
 async function startSteamWorker() {
   const channel = await rabbitConn.createChannel();
 
-  await channel.assertQueue(config.defaultQueue, { durable: true });
-  console.log(`Steam worker listening on queue "${config.defaultQueue}"...`);
+  await channel.assertQueue(config.steamRequests!, { durable: true });
+  console.log(`Steam worker listening on queue "${config.steamRequests}"...`);
 
-  channel.consume(config.defaultQueue, async (msg) => {
+  await channel.assertQueue(config.steamResults!, { durable: true });
+  console.log(`Steam worker ready to answear on queue "${config.steamResults}"...`)
+
+  channel.consume(config.steamRequests!, async (msg) => {
     if (!msg) return;
 
     const task: SteamTask = JSON.parse(msg.content.toString());
@@ -38,14 +41,14 @@ async function startSteamWorker() {
         await new Promise(res => setTimeout(res, config.cooldownMs));
       }
 
-      // channel.sendToQueue(
-      //   config.steamResultsQueue,
-      //   Buffer.from(JSON.stringify({
-      //     jobId: task.jobId,
-      //     redisResultKey: task.redisResultKey,
-      //   }))
-      // );
-
+      await channel.sendToQueue(
+        config.steamResults!, 
+        Buffer.from(JSON.stringify({
+          jobId: task.jobId,
+          redisResultKey: task.redisResultKey
+        })),
+        { persistent: true }
+      )
       channel.ack(msg);
       console.log(`Task ${task.jobId} done, scraped ${scrapedCount} games.`);
     } catch (err) {

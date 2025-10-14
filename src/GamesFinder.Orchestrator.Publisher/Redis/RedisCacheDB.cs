@@ -26,4 +26,19 @@ public class RedisCacheDB
     ? JsonSerializer.Deserialize<T>(json.ToString())
     : default;
   }
+
+  public async Task<IEnumerable<T>?> ListRangeAsync<T>(string key)
+  {
+    var json = await _db.ListRangeAsync(key);
+    return json
+    .Select(i => i.HasValue
+        ? JsonSerializer.Deserialize<T>(i.ToString())
+        : default)
+    .Where(x => x is not null)!;
+  }
+  
+  public async Task<bool> ClearKey(string key)
+  {
+    return await _db.KeyDeleteAsync(key);
+  }
 }

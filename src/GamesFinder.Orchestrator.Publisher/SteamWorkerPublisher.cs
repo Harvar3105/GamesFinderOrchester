@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GamesFinder.Orchestrator.Publisher;
 
-public class SteamScrapingPublisher
+public class SteamWorkerPublisher
 {
   private readonly IBrockerPublisher _publisher;
-  private readonly ILogger<SteamScrapingPublisher> _logger;
+  private readonly ILogger<SteamWorkerPublisher> _logger;
 
-  public SteamScrapingPublisher(IBrockerPublisher publisher, ILogger<SteamScrapingPublisher> logger)
+  public SteamWorkerPublisher(IBrockerPublisher publisher, ILogger<SteamWorkerPublisher> logger)
   {
     _publisher = publisher;
     _logger = logger;

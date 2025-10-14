@@ -2,8 +2,8 @@ using System;
 
 namespace GamesFinder.Orchestrator.Domain.Interfaces.Infrastructure;
 
-public interface IBrockerPublisher
+public interface IBrockerConsumer
 {
-  Task PublishAsync<T>(T message, string? queueName = null);
+  // protected Task ExecuteAsync(CancellationToken cancellationToken);
   ValueTask DisposeAsync();
 }

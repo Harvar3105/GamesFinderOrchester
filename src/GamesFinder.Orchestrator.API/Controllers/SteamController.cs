@@ -1,5 +1,4 @@
-using System;
-using GamesFinder.Orchestrator.Services;
+using GamesFinder.Orchestrator.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +9,9 @@ namespace GamesFinder.Orchestrator.API.Controllers;
 public class SteamController : ControllerBase
 {
   private readonly ILogger<SteamController> _logger;
-  private readonly SteamService _steamService;
+  private readonly ISteamService _steamService;
 
-  public SteamController(ILogger<SteamController> logger, SteamService steamService)
+  public SteamController(ILogger<SteamController> logger, ISteamService steamService)
   {
     _logger = logger;
     _steamService = steamService;

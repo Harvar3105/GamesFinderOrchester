@@ -8,15 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GamesFinder.Orchestrator.Domain\GamesFinder.Orchestrator.Domain.csproj" />
+    <ProjectReference Include="..\GamesFinder.Orchestrator.Publisher\GamesFinder.Orchestrator.Publisher.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
-    <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="RabbitMQ\Publisher\" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
   </ItemGroup>
 
 </Project>
