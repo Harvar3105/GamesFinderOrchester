@@ -1,4 +1,5 @@
 using GamesFinder.Orchestrator.Domain.Interfaces.Infrastructure;
+using GamesFinder.Orchestrator.Publisher.RabbitMQ;
 using Microsoft.Extensions.Logging;
 
 namespace GamesFinder.Orchestrator.Publisher;
@@ -7,11 +8,13 @@ public class SteamWorkerPublisher
 {
   private readonly IBrockerPublisher _publisher;
   private readonly ILogger<SteamWorkerPublisher> _logger;
+  private readonly RabbitMqConfig _config;
 
-  public SteamWorkerPublisher(IBrockerPublisher publisher, ILogger<SteamWorkerPublisher> logger)
+  public SteamWorkerPublisher(IBrockerPublisher publisher, ILogger<SteamWorkerPublisher> logger, RabbitMqConfig config)
   {
     _publisher = publisher;
     _logger = logger;
+    _config = config;
   }
 
   public async Task PublishSteamScrapeTaskAsync(List<int> steamIds, bool updateExisting = false)
@@ -35,7 +38,7 @@ public class SteamWorkerPublisher
     {
       _logger.LogInformation("Task publishing for Steam: {Count} ID, RedisKey: {RedisKey}", steamIds.Count, redisKey);
 
-      await _publisher.PublishAsync(task, "steam-scraper-tasks");
+      await _publisher.PublishAsync(task, _config.SteamRequestsQueue);
 
       _logger.LogInformation("Task published✅. ID's count: {Count}", steamIds.Count);
     }

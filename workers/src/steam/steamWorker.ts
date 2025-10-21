@@ -1,6 +1,6 @@
 import { rabbitConn } from '../utils/config.js';
 import { config, redis } from '../utils/config.js';
-import { SteamTask } from '../utils/types/entities/tasks.js';
+import { SteamTask, normalizeSteamTask } from '../utils/types/entities/tasks.js';
 import { scrapeBatch } from '../utils/fetchAPI.js';
 import { Game } from '../utils/types/entities/game.js';
 
@@ -13,18 +13,25 @@ async function startSteamWorker() {
   await channel.assertQueue(config.steamResults!, { durable: true });
   console.log(`Steam worker ready to answear on queue "${config.steamResults}"...`)
 
-  channel.consume(config.steamRequests!, async (msg) => {
+  await channel.consume(config.steamRequests!, async (msg) => {
     if (!msg) return;
 
-    const task: SteamTask = JSON.parse(msg.content.toString());
-    console.log('Received task:', task.jobId, 'IDs:', task.ids.length);
+    let task: SteamTask;
+    try {
+      task = normalizeSteamTask(JSON.parse(msg.content.toString()));
+    } catch (err) {
+      console.error('Invalid JSON from queue:', msg.content.toString());
+      channel.nack(msg, false, false);
+      return;
+}
+
 
     if (await redis.exists(task.redisResultKey)) {
       await redis.del(task.redisResultKey);
       console.log(`Cleared existing Redis key from previous request: ${task.redisResultKey}`);
     }
     
-    var batches = splitIntoBatches(task.ids, config.maxRequests);
+    var batches = splitIntoBatches(task.gameIds, config.maxRequests);
 
     try {
       let scrapedCount = 0;
@@ -38,19 +45,19 @@ async function startSteamWorker() {
           console.log(`Just added ${result.length} games to redis, total so far: ${scrapedCount}`);
         }
 
-        await new Promise(res => setTimeout(res, config.cooldownMs));
+        if (batch.length === 200) await new Promise(res => setTimeout(res, config.cooldownMs));
       }
 
       await channel.sendToQueue(
         config.steamResults!, 
         Buffer.from(JSON.stringify({
-          jobId: task.jobId,
+          taskId: task.taskId,
           redisResultKey: task.redisResultKey
         })),
         { persistent: true }
       )
       channel.ack(msg);
-      console.log(`Task ${task.jobId} done, scraped ${scrapedCount} games.`);
+      console.log(`Task ${task.taskId} done, scraped ${scrapedCount} games.`);
     } catch (err) {
       console.error('Error processing task:', err);
       channel.nack(msg, false, true);

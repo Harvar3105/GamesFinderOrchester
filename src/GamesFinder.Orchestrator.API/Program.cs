@@ -22,6 +22,7 @@ using GamesFinder.Orchestrator.Publisher.Redis;
 using StackExchange.Redis;
 using GamesFinder.Orchestrator.Publisher;
 using GamesFinder.Domain.Enums;
+using GamesFinder.Orchestrator.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,7 +90,7 @@ builder.Services.AddSingleton(new RabbitMqConfig(
 	defaultQueue: builder.Configuration.GetValue<string>("RabbitMQ:DefaultQueue")!,
 	steamRequestsQueue: builder.Configuration.GetValue<string>("RabbitMQ:SteamRequestsQueue")!,
 	steamResultsQueue: builder.Configuration.GetValue<string>("RabbitMQ:SteamResultsQueue")!,
-	userName: builder.Configuration.GetValue<string>("RabbitMQ:UserName")!,
+	userName: builder.Configuration.GetValue<string>("RabbitMQ:Username")!,
 	password: builder.Configuration.GetValue<string>("RabbitMQ:Password")!
 ));
 builder.Services.AddSingleton(new RedisConfig(
@@ -100,7 +101,7 @@ builder.Services.AddSingleton(new RedisConfig(
 ));
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-	var config = sp.GetRequiredService<IOptions<RedisConfig>>().Value;
+	var config = sp.GetRequiredService<RedisConfig>();
 	var configurationOptions = new ConfigurationOptions
 	{
 		EndPoints = { $"{config.Host}:{config.Port}" },
@@ -114,8 +115,11 @@ builder.Services.AddScoped<IGameRepository<Game>, GameRepository>();
 builder.Services.AddScoped<IGameOfferRepository<GameOffer>, GameOfferRepository>();
 // builder.Services.AddSingleton<IGamesWithOffersService<Game>, GamesWithOffersService>();
 builder.Services.AddScoped<ISteamService, SteamService>();
+builder.Services.AddSingleton<RedisCacheDB>();
 builder.Services.AddSingleton<IBrockerPublisher, RabbitMqPublisher>();
 builder.Services.AddSingleton<SteamWorkerPublisher>();
+
+builder.Services.AddHostedService<SteamWorkerConsumer>();
 
 
 BsonSerializer.RegisterSerializer(typeof(ECurrency), new EnumSerializer<ECurrency>(BsonType.String));

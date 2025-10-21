@@ -5,6 +5,7 @@ WORKDIR /app
 # Copy solution and project files
 COPY GamesFinder.sln ./
 COPY src/GamesFinder.Orchestrator.API/*.csproj ./src/GamesFinder.Orchestrator.API/
+COPY src/GamesFinder.Orchestrator.Consumers/*.csproj ./src/GamesFinder.Orchestrator.Consumers/
 COPY src/GamesFinder.Orchestrator.Domain/*.csproj ./src/GamesFinder.Orchestrator.Domain/
 COPY src/GamesFinder.Orchestrator.Publisher/*.csproj ./src/GamesFinder.Orchestrator.Publisher/
 COPY src/GamesFinder.Orchestrator.Repositories/*.csproj ./src/GamesFinder.Orchestrator.Repositories/

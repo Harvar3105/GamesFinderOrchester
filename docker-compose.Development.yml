@@ -40,6 +40,8 @@ services:
     container_name: steam-worker
     env_file:
       - ./.env
+    environment:
+      - NODE_ENV=docker
     volumes:
       - ./workers:/app:cached
     working_dir: /app
@@ -69,5 +71,7 @@ services:
     depends_on:
       - rabbitmq
       - redis
+      - steam-worker
+    restart: unless-stopped
     networks:
       - shared-network

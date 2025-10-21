@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GamesFinder.Orchestrator.Consumers\GamesFinder.Orchestrator.Consumers.csproj" />
     <ProjectReference Include="..\GamesFinder.Orchestrator.Domain\GamesFinder.Orchestrator.Domain.csproj" />
     <ProjectReference Include="..\GamesFinder.Orchestrator.Publisher\GamesFinder.Orchestrator.Publisher.csproj" />
     <ProjectReference Include="..\GamesFinder.Orchestrator.Repositories\GamesFinder.Orchestrator.Repositories.csproj" />
