@@ -3,15 +3,15 @@ import { config, redis } from '../utils/config.js';
 import { SteamTask, normalizeSteamTask } from '../utils/types/entities/tasks.js';
 import { scrapeBatch } from '../utils/fetchAPI.js';
 import { Game } from '../utils/types/entities/game.js';
+import logger from '../utils/logger.js';
 
 async function startSteamWorker() {
   const channel = await rabbitConn.createChannel();
 
   await channel.assertQueue(config.steamRequests!, { durable: true });
-  console.log(`Steam worker listening on queue "${config.steamRequests}"...`);
-
+  logger.info(`✅Steam worker listening on queue "${config.steamRequests}"...`);
   await channel.assertQueue(config.steamResults!, { durable: true });
-  console.log(`Steam worker ready to answear on queue "${config.steamResults}"...`)
+  logger.info(`✅Steam worker ready to answear on queue "${config.steamResults}"...`)
 
   await channel.consume(config.steamRequests!, async (msg) => {
     if (!msg) return;
@@ -20,7 +20,7 @@ async function startSteamWorker() {
     try {
       task = normalizeSteamTask(JSON.parse(msg.content.toString()));
     } catch (err) {
-      console.error('Invalid JSON from queue:', msg.content.toString());
+      logger.error('❌Invalid JSON from queue:', msg.content.toString());
       channel.nack(msg, false, false);
       return;
 }
@@ -28,7 +28,7 @@ async function startSteamWorker() {
 
     if (await redis.exists(task.redisResultKey)) {
       await redis.del(task.redisResultKey);
-      console.log(`Cleared existing Redis key from previous request: ${task.redisResultKey}`);
+      logger.warn(`⚠️Cleared existing Redis key from previous request: ${task.redisResultKey}`);
     }
     
     var batches = splitIntoBatches(task.gameIds, config.maxRequests);
@@ -42,7 +42,7 @@ async function startSteamWorker() {
           scrapedCount += result.length;
 
           await redis.rpush(task.redisResultKey, ...result.map(r => JSON.stringify(r)));
-          console.log(`Just added ${result.length} games to redis, total so far: ${scrapedCount}`);
+          logger.info(`ℹ️Just added ${result.length} games to redis, total so far: ${scrapedCount}`);
         }
 
         if (batch.length === 200) await new Promise(res => setTimeout(res, config.cooldownMs));
@@ -57,9 +57,9 @@ async function startSteamWorker() {
         { persistent: true }
       )
       channel.ack(msg);
-      console.log(`Task ${task.taskId} done, scraped ${scrapedCount} games.`);
+      logger.info(`✅Task ${task.taskId} done, scraped ${scrapedCount} games.`);
     } catch (err) {
-      console.error('Error processing task:', err);
+      logger.error('❌Error processing task:', err);
       channel.nack(msg, false, true);
     }
   });
@@ -75,4 +75,4 @@ function splitIntoBatches<T>(array: T[], batchSize: number): T[][] {
 
 
 
-startSteamWorker().catch(console.error);
+startSteamWorker().catch(logger.crit);

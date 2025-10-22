@@ -18,9 +18,13 @@
     "node-fetch": "^3.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "winston": "^3.18.3"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/winston": "^2.4.4"
+  }
 }

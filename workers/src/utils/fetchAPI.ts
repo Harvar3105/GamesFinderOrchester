@@ -4,6 +4,7 @@ import { eCurrency, getECurrencyFromString } from "./types/enums/eCurrency.js";
 import { eRegion } from "./types/enums/eRegion.js";
 import { eVendor } from "./types/enums/eVendor.js";
 import { GameOffer } from "./types/entities/gameOffer.js";
+import logger from "./logger.js";
 
 export async function fetchSteamGame(id: number, region: eRegion = eRegion.US ): Promise<Game | null> {
   const url = `https://store.steampowered.com/api/appdetails?appids=${id}&cc=${region}&l=en`;
@@ -40,7 +41,7 @@ export async function fetchSteamGame(id: number, region: eRegion = eRegion.US ):
         price: {[currency]: currentAmount} as Record<eCurrency, number>,
       } as GameOffer]
     } catch (e) {
-      console.error(`Error parsing price for game ID ${id}:`, e);
+      logger.error(`❌Error parsing price for game ID ${id}:`, e);
     }
   }
 
