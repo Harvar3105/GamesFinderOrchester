@@ -1,21 +1,23 @@
-using System;
-using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
+using Newtonsoft.Json;
 
 namespace GamesFinder.Orchestrator.Publisher.Redis;
 
 public class RedisCacheDB
 {
   private readonly IDatabase _db;
+  private ILogger<RedisCacheDB> _logger;
 
-  public RedisCacheDB(IConnectionMultiplexer redis)
+  public RedisCacheDB(IConnectionMultiplexer redis, ILogger<RedisCacheDB> logger)
   {
     _db = redis.GetDatabase();
+    _logger = logger;
   }
 
   public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
   {
-    var json = JsonSerializer.Serialize(value);
+    var json = JsonConvert.SerializeObject(value);
     await _db.StringSetAsync(key, json, expiry);
   }
 
@@ -23,18 +25,44 @@ public class RedisCacheDB
   {
     var json = await _db.StringGetAsync(key);
     return json.HasValue
-    ? JsonSerializer.Deserialize<T>(json.ToString())
+    ? JsonConvert.DeserializeObject<T>(json.ToString())
     : default;
   }
 
   public async Task<IEnumerable<T>?> ListRangeAsync<T>(string key)
   {
+    _logger.LogInformation($"Fetching list range from Redis with key: {key}");
     var json = await _db.ListRangeAsync(key);
-    return json
-    .Select(i => i.HasValue
-        ? JsonSerializer.Deserialize<T>(i.ToString())
-        : default)
-    .Where(x => x is not null)!;
+    var result = new List<T>();
+
+    foreach (var item in json)
+    {
+      if (item.HasValue)
+      {
+        try
+        {
+          var deserializedItem = JsonConvert.DeserializeObject<T>(
+            item.ToString(),
+            new JsonSerializerSettings
+            {
+              NullValueHandling = NullValueHandling.Ignore,
+              MissingMemberHandling = MissingMemberHandling.Ignore
+            });
+
+          if (deserializedItem != null)
+          {
+              result.Add(deserializedItem);
+          }
+        }
+        catch (JsonException ex)
+        {
+          _logger.LogError(ex, $"Failed to deserialize item from Redis. Item: {item}");
+        }
+      }
+    }
+    _logger.LogInformation($"Deserialized {result.Count()} items from Redis with key: {key} as\n{string.Join(", ", result.Take(3).Select(r => r?.ToString() ?? "null"))}...");
+
+    return result;
   }
   
   public async Task<bool> ClearKey(string key)
@@ -42,3 +70,4 @@ public class RedisCacheDB
     return await _db.KeyDeleteAsync(key);
   }
 }
+

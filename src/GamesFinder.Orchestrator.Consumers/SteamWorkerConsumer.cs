@@ -58,19 +58,26 @@ public class SteamWorkerConsumer : BackgroundService, IBrockerConsumer
 
 
       var message = Encoding.UTF8.GetString(ea.Body.ToArray());
-      var result = JsonSerializer.Deserialize<RedisResultNotification>(message);
+      var result = JsonSerializer.Deserialize<RedisResultNotification>(
+        message,
+        new JsonSerializerOptions
+        {
+          PropertyNameCaseInsensitive = true
+        });
       if (result == null) return;
 
-      _logger.LogInformation($"Recieved result from steam worker with redis key: {result}");
+      _logger.LogInformation($"Recieved result from steam worker with redis key: {result.RedisResultKey}");
 
       var games = await _redis.ListRangeAsync<Game>(result.RedisResultKey);
-      if (games is null)
+      if (games is null || !games.Any())
       {
         _logger.LogError("No games were found in result!");
         return;
       }
 
-      await steamService.SaveManyAsync(games);
+      _logger.LogInformation($"Saving {games?.Count()} games to database...");
+
+      await steamService.SaveManyAsync(games!);
       await _redis.ClearKey(result.RedisResultKey);
 
       await channel.BasicAckAsync(ea.DeliveryTag, false);
