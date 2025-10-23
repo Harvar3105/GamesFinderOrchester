@@ -5,7 +5,7 @@ import { scrapeBatch } from '../utils/fetchAPI.js';
 import { Game } from '../utils/types/entities/game.js';
 import logger from '../utils/logger.js';
 
-async function startSteamWorker() {
+export async function startSteamWorker() {
   const channel = await rabbitConn.createChannel();
 
   await channel.assertQueue(config.steamRequests!, { durable: true });

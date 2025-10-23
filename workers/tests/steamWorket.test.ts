@@ -1,22 +1,24 @@
-import { jest } from '@jest/globals';
+import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 
 jest.unstable_mockModule('../src/utils/config.js', () => ({
-  rabbitConn: { createChannel: jest.fn() },
-  config: { 
-    steamRequests: 'steam_requests',
-    steamResults: 'steam_results',
-    maxRequests: 2,
-    cooldownMs: 0
+  rabbitConn: {
+    createChannel: jest.fn(),
+  },
+  config: {
+    steamRequests: 'steam.requests',
+    steamResults: 'steam.results',
+    maxRequests: 200,
+    cooldownMs: 0,
   },
   redis: {
     exists: jest.fn(),
     del: jest.fn(),
-    rpush: jest.fn()
-  }
+    rpush: jest.fn(),
+  },
 }));
 
 jest.unstable_mockModule('../src/utils/fetchAPI.js', () => ({
-  scrapeBatch: jest.fn()
+  scrapeBatch: jest.fn(),
 }));
 
 jest.unstable_mockModule('../src/utils/logger.js', () => ({
@@ -24,13 +26,14 @@ jest.unstable_mockModule('../src/utils/logger.js', () => ({
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
-    crit: jest.fn()
-  }
+    crit: jest.fn(),
+  },
 }));
 
-const { startSteamWorker } = await import('../src/workers/steamWorker.js');
-const { rabbitConn, redis } = await import('../src/utils/config.js');
+const { startSteamWorker } = await import('../src/steam/steamWorker.js');
+const { rabbitConn, redis, config } = await import('../src/utils/config.js');
 const { scrapeBatch } = await import('../src/utils/fetchAPI.js');
+const logger = (await import('../src/utils/logger.js')).default;
 
 describe('Steam Worker', () => {
   let fakeChannel: any;
@@ -43,34 +46,40 @@ describe('Steam Worker', () => {
       consume: jest.fn(),
       sendToQueue: jest.fn(),
       ack: jest.fn(),
-      nack: jest.fn()
+      nack: jest.fn(),
     };
 
     (rabbitConn.createChannel as jest.Mock).mockResolvedValue(fakeChannel);
   });
 
-  it('Process request and place into Redis', async () => {
+  it('должен обработать задачу и записать результаты в Redis', async () => {
     const fakeMsg = {
-      content: Buffer.from(JSON.stringify({
-        taskId: '123',
-        gameIds: [1, 2],
-        redisResultKey: 'steam:123'
-      }))
+      content: Buffer.from(
+        JSON.stringify({
+          taskId: '123',
+          gameIds: [1, 2],
+          redisResultKey: 'steam:123',
+        })
+      ),
     };
 
     (redis.exists as jest.Mock).mockResolvedValue(false);
     (scrapeBatch as jest.Mock).mockResolvedValue([
       { id: 'g1', name: 'Half-Life' },
-      { id: 'g2', name: 'Portal' }
+      { id: 'g2', name: 'Portal' },
     ]);
 
-    (fakeChannel.consume as jest.Mock).mockImplementation(async (queue, callback) => {
-      await callback(fakeMsg);
-    });
+    (fakeChannel.consume as jest.Mock).mockImplementation(
+      async (_queue: string, callback: Function) => {
+        await callback(fakeMsg);
+      }
+    );
 
     await startSteamWorker();
 
-    expect(fakeChannel.assertQueue).toHaveBeenCalledWith('steam_requests', { durable: true });
+    expect(fakeChannel.assertQueue).toHaveBeenCalledWith(config.steamRequests, { durable: true });
+    expect(fakeChannel.assertQueue).toHaveBeenCalledWith(config.steamResults, { durable: true });
+
     expect(scrapeBatch).toHaveBeenCalledTimes(1);
     expect(redis.rpush).toHaveBeenCalledWith(
       'steam:123',
@@ -78,21 +87,28 @@ describe('Steam Worker', () => {
       expect.stringContaining('Portal')
     );
     expect(fakeChannel.sendToQueue).toHaveBeenCalledWith(
-      'steam_results',
+      config.steamResults,
       expect.any(Buffer),
       { persistent: true }
     );
     expect(fakeChannel.ack).toHaveBeenCalledWith(fakeMsg);
   });
 
-  it('rejects invalid message (invalid JSON)', async () => {
+  it('должен корректно обработать невалидный JSON', async () => {
     const fakeMsg = { content: Buffer.from('invalid_json') };
-    (fakeChannel.consume as jest.Mock).mockImplementation(async (queue, callback) => {
-      await callback(fakeMsg);
-    });
+
+    (fakeChannel.consume as jest.Mock).mockImplementation(
+      async (_queue: string, callback: Function) => {
+        await callback(fakeMsg);
+      }
+    );
 
     await startSteamWorker();
 
     expect(fakeChannel.nack).toHaveBeenCalledWith(fakeMsg, false, false);
+    expect(logger.error).toHaveBeenCalledWith(
+      '❌Invalid JSON from queue:',
+      'invalid_json'
+    );
   });
 });
